@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from .db import get_conn
 from .embeddings import embed_query
 from .ingest import ingest_document
+from .generate import summarize_notebook, generate_question_set
 
 UPLOAD_DIR = "/data/uploads"
 app = FastAPI(title="StudyNotebook")
@@ -97,4 +98,51 @@ def search(notebook_id: uuid.UUID, q: str, k: int = 5):
             "from chunks where notebook_id=%s "
             "order by embedding <=> %s limit %s",
             (qvec, notebook_id, qvec, k),
+        ).fetchall()
+
+
+@app.post("/notebooks/{notebook_id}/summary")
+def make_summary(notebook_id: uuid.UUID):
+    try:
+        return {"summary": summarize_notebook(str(notebook_id))}
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+
+
+@app.get("/notebooks/{notebook_id}/summary")
+def get_summary(notebook_id: uuid.UUID):
+    with get_conn() as conn:
+        row = conn.execute(
+            "select content, created_at from summaries where notebook_id=%s "
+            "order by created_at desc limit 1",
+            (notebook_id,),
+        ).fetchone()
+    if not row:
+        raise HTTPException(404, "Aún no hay resumen")
+    return row
+
+
+@app.post("/notebooks/{notebook_id}/questions")
+def make_questions(notebook_id: uuid.UUID, n_topics: int = 6, per_topic: int = 3):
+    try:
+        set_id = generate_question_set(str(notebook_id), n_topics, per_topic)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    return {"question_set_id": set_id}
+
+
+@app.get("/notebooks/{notebook_id}/questions")
+def get_questions(notebook_id: uuid.UUID):
+    with get_conn() as conn:
+        qs = conn.execute(
+            "select id from question_sets where notebook_id=%s "
+            "order by created_at desc limit 1",
+            (notebook_id,),
+        ).fetchone()
+        if not qs:
+            raise HTTPException(404, "Aún no hay preguntas")
+        return conn.execute(
+            "select type, question, options, answer, explanation, page "
+            "from questions where question_set_id=%s",
+            (qs["id"],),
         ).fetchall()
