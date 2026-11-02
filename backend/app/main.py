@@ -2,6 +2,7 @@ import os
 import uuid
 from fastapi import FastAPI, UploadFile, File, BackgroundTasks, HTTPException
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 from .db import get_conn
 from .embeddings import embed_query
@@ -10,6 +11,13 @@ from .generate import summarize_notebook, generate_question_set
 
 UPLOAD_DIR = "/data/uploads"
 app = FastAPI(title="StudyNotebook")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class NotebookIn(BaseModel):
