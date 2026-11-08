@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+psycopg[binary]
+pgvector
+python-multipart
+pymupdf
+sentence-transformers
