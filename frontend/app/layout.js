@@ -1,5 +1,8 @@
 import "./globals.css";
+import "@fontsource-variable/bricolage-grotesque";
+import "@fontsource-variable/source-serif-4";
 import Link from "next/link";
+import Icon from "./components/Icon";
 
 export const metadata = {
   title: "StudyNotebook",
@@ -13,11 +16,20 @@ export default function RootLayout({ children }) {
         <header className="bar">
           <div className="bar-in">
             <Link href="/" className="brand">
-              StudyNotebook
+              <span className="brand-mark"><Icon name="book" /></span>
+              Study<span className="brand-light">Notebook</span>
             </Link>
+            <nav aria-label="Navegación principal" className="header-nav">
+              <Link href="/"><Icon name="library" /> Mis cuadernos</Link>
+            </nav>
+            <span className="header-note"><span /> Un espacio para aprender</span>
           </div>
         </header>
         <main className="wrap">{children}</main>
+        <footer className="footer">
+          <span>StudyNotebook</span>
+          <span>Una idea a la vez.</span>
+        </footer>
       </body>
     </html>
   );
