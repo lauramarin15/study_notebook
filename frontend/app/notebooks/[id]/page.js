@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
+import Icon from "../../components/Icon";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -177,9 +178,17 @@ export default function NotebookPage({ params }) {
   return (
     <>
       <Link href="/" className="back">
-        ← Mis cuadernos
+        <Icon name="arrowLeft" />
+        Mis cuadernos
       </Link>
-      <h1 className="page-title">{title}</h1>
+      <div className="notebook-heading">
+        <span className="notebook-icon"><Icon name="book" /></span>
+        <div>
+          <p className="eyebrow">ESPACIO DE ESTUDIO</p>
+          <h1 className="page-title">{title}</h1>
+          <p className="page-lede">Tus materiales, las ideas esenciales y un lugar para practicar.</p>
+        </div>
+      </div>
 
       <div className="tabs" role="tablist" aria-label="Secciones del cuaderno">
         {TABS.map(([key, label]) => (
@@ -193,6 +202,7 @@ export default function NotebookPage({ params }) {
             className="tab"
             onClick={() => setTab(key)}
           >
+            <Icon name={key === "files" ? "file" : key === "summary" ? "sparkles" : "practice"} />
             {label}
             {counts[key] > 0 && <small>{counts[key]}</small>}
           </button>
@@ -207,6 +217,13 @@ export default function NotebookPage({ params }) {
 
       {tab === "files" && (
         <div role="tabpanel" id="panel-files" aria-labelledby="tab-files">
+          <div className="panel-heading">
+            <div>
+              <p className="eyebrow">TUS MATERIALES</p>
+              <h2>Todo empieza con tus archivos</h2>
+            </div>
+            <p>Reúne aquí los PDFs que quieres estudiar.</p>
+          </div>
           <label
             className={`drop${dragging ? " over" : ""}`}
             onDragOver={(e) => {
@@ -231,14 +248,17 @@ export default function NotebookPage({ params }) {
                 upload(files);
               }}
             />
+            <span className="upload-icon"><Icon name="upload" /></span>
             <strong>{uploading ? "Subiendo…" : "Arrastra tus PDFs aquí o haz clic para elegirlos"}</strong>
             <span>Solo PDFs con texto, no escaneados.</span>
+            <span className="upload-action">Elegir archivos <Icon name="plus" /></span>
           </label>
 
           {docs.length > 0 && (
             <ul className="docs">
               {docs.map((d) => (
                 <li key={d.id} className="doc">
+                  <span className="doc-icon"><Icon name="file" /></span>
                   <span className="doc-name">{d.filename}</span>
                   <span className={`status ${d.status}`}>{STATUS_LABEL[d.status] ?? d.status}</span>
                   {d.error && <span className="doc-err">{d.error}</span>}
@@ -258,6 +278,13 @@ export default function NotebookPage({ params }) {
 
       {tab === "summary" && (
         <div role="tabpanel" id="panel-summary" aria-labelledby="tab-summary">
+          <div className="panel-heading">
+            <div>
+              <p className="eyebrow">LAS IDEAS ESENCIALES</p>
+              <h2>Una lectura para conectar todo</h2>
+            </div>
+            <p>Condensa tus materiales en un texto de estudio.</p>
+          </div>
           <div className="toolbar">
             <button
               type="button"
@@ -265,6 +292,7 @@ export default function NotebookPage({ params }) {
               disabled={!ready || Boolean(busy)}
               onClick={() => generate("summary")}
             >
+              <Icon name="sparkles" />
               {summary ? "Regenerar resumen" : "Generar resumen"}
             </button>
             {summary && !busy && <p className="toolbar-note">Generado el {formatDateTime(summary.created_at)}</p>}
@@ -299,6 +327,13 @@ export default function NotebookPage({ params }) {
 
       {tab === "practice" && (
         <div role="tabpanel" id="panel-practice" aria-labelledby="tab-practice">
+          <div className="panel-heading">
+            <div>
+              <p className="eyebrow">PONTE A PRUEBA</p>
+              <h2>Haz tuyas las ideas</h2>
+            </div>
+            <p>Practica con preguntas basadas en tus materiales.</p>
+          </div>
           <div className="toolbar">
             <button
               type="button"
@@ -306,6 +341,7 @@ export default function NotebookPage({ params }) {
               disabled={!ready || Boolean(busy)}
               onClick={() => generate("questions")}
             >
+              <Icon name="sparkles" />
               {questions.length ? "Generar nuevo set" : "Generar preguntas"}
             </button>
           </div>
