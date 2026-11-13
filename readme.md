@@ -1,6 +1,6 @@
 # StudyNotebook: resúmenes y preguntas de parcial con RAG 
 
-**Autores:** Laura Marín - Fabian Buritica - Mateo Sepulveda
+**Autores:** Laura Marín - Fabian Buritica - Mateo Sepulveda - David Mendiola Rios
 
 ---
 
